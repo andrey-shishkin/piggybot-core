@@ -36,9 +36,9 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingCommandBot 
     @Autowired
     private InlineCommandDelegatorFactory inlineFactory;
 
-    private CallbackCommandDelegator callbackDelegator;
+    private final CallbackCommandDelegator callbackDelegator = callbackFactory.getDelegator();
 
-    private InlineCommandDelegator inlineDelegator;
+    private final InlineCommandDelegator inlineDelegator = inlineFactory.getDelegator();
 
     @PostConstruct
     @Override

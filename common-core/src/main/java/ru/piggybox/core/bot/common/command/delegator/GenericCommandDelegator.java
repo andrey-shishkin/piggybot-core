@@ -1,7 +1,6 @@
 package ru.piggybox.core.bot.common.command.delegator;
 
 import com.google.common.collect.ImmutableMap;
-import ru.piggybox.core.bot.bot.ITelegramBot;
 import ru.piggybox.core.bot.common.command.BotCommand;
 import ru.piggybox.core.bot.common.controller.CommandController;
 import ru.piggybox.core.bot.common.dto.BotRequest;
@@ -10,7 +9,7 @@ import ru.piggybox.core.bot.common.dto.BotResponse;
 import java.util.Optional;
 
 public abstract class GenericCommandDelegator<I extends BotRequest, O extends BotResponse,
-        T extends CommandController<I, O>, Cmd extends BotCommand<I, O, T>> implements CommandDelegator<I, O, T, Cmd> {
+        T extends CommandController<I, O>, Cmd extends BotCommand<I, O>> implements CommandDelegator<I, O, T, Cmd> {
 
     protected final ImmutableMap<String, Cmd> registry;
 
