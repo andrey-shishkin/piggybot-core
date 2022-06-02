@@ -3,10 +3,8 @@ package ru.piggybox.core.bot.bot.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
-import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -44,19 +42,11 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingCommandBot 
     @Override
     public void init() {
         try {
-            /*List<BotCommand> mainMenu = new ArrayList<>();
-            getMainMenuItems().forEach(p -> mainMenu.add(new BotCommand(p.getLeft(), p.getRight())));
-            BOT.execute(new SetMyCommands(mainMenu, null, null));*/
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
             api.registerBot(this);
         } catch (TelegramApiException e) {
             throw new IllegalStateException("Couldn't initialize bot");
         }
-    }
-
-    public void registerCommand(IBotCommand command) {
-        register(command);
-        SendDocument document = new SendDocument();
     }
 
     @Override
