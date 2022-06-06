@@ -4,11 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.api.methods.ParseMode;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import ru.piggybox.core.bot.bot.ITelegramBot;
@@ -34,47 +31,19 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingCommandBot 
     @Autowired
     private InlineCommandDelegatorFactory inlineFactory;
 
-    private final CallbackCommandDelegator callbackDelegator = callbackFactory.getDelegator();
+    private CallbackCommandDelegator callbackDelegator;
 
-    private final InlineCommandDelegator inlineDelegator = inlineFactory.getDelegator();
+    private InlineCommandDelegator inlineDelegator;
 
     @PostConstruct
-    @Override
     public void init() {
         try {
+            callbackDelegator = callbackFactory.getDelegator();
+            inlineDelegator = inlineFactory.getDelegator();
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
             api.registerBot(this);
         } catch (TelegramApiException e) {
             throw new IllegalStateException("Couldn't initialize bot");
-        }
-    }
-
-    @Override
-    public void sendMessage(String message, String userId) {
-        SendMessage msg = new SendMessage();
-        msg.setChatId(userId);
-        msg.setText(message);
-        msg.setParseMode(ParseMode.MARKDOWN);
-        try {
-            execute(msg);
-        } catch (TelegramApiException e) {
-            System.out.println("Error during sending the answer " + msg);
-            System.out.println(e.getMessage());
-        }
-    }
-
-    @Override
-    public void sendMessage(String message, InlineKeyboardMarkup markup, String userId) {
-        SendMessage msg = new SendMessage();
-        msg.setChatId(userId);
-        msg.setText(message);
-        msg.setParseMode(ParseMode.MARKDOWN);
-        msg.setReplyMarkup(markup);
-        try {
-            execute(msg);
-        } catch (TelegramApiException e) {
-            System.out.println("Error during sending the answer " + msg);
-            System.out.println(e.getMessage());
         }
     }
 

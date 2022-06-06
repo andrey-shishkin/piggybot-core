@@ -1,4 +1,4 @@
-package ru.piggybox.core.bot.common.command.mapping;
+package ru.piggybox.core.bot.common.command.mapping.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
