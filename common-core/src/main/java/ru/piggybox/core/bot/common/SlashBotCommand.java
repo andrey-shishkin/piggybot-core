@@ -5,19 +5,18 @@ import org.telegram.telegrambots.extensions.bots.commandbot.commands.helpCommand
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
+import ru.piggybox.core.bot.command.slash.dto.BotSlashRequest;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
-public class SequentialBotCommand extends ManCommand implements Comparable<SequentialBotCommand> {
+public class SlashBotCommand extends ManCommand implements Comparable<SlashBotCommand> {
 
     private final int sequencePriority;
-    private final Function<List<Object>, Void> function;
+    private final Function<BotSlashRequest, Void> function;
     @Getter
     private final boolean isVisible;
 
-    public SequentialBotCommand(String commandIdentifier, String description, String extendedDescription, int sequencePriority, boolean isVisible, Function<List<Object>, Void> function) {
+    public SlashBotCommand(String commandIdentifier, String description, String extendedDescription, int sequencePriority, boolean isVisible, Function<BotSlashRequest, Void> function) {
         super(commandIdentifier, description, extendedDescription);
         this.sequencePriority = sequencePriority;
         this.isVisible = isVisible;
@@ -26,16 +25,31 @@ public class SequentialBotCommand extends ManCommand implements Comparable<Seque
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        List<Object> input = new ArrayList<>();
-        input.add(absSender);
-        input.add(user);
-        input.add(chat);
-        input.add(arguments);
-        function.apply(input);
+        function.apply(new BotSlashRequest() {
+            @Override
+            public AbsSender getAbsSender() {
+                return absSender;
+            }
+
+            @Override
+            public Chat getChat() {
+                return chat;
+            }
+
+            @Override
+            public User getUser() {
+                return user;
+            }
+
+            @Override
+            public String[] getArguments() {
+                return arguments;
+            }
+        });
     }
 
     @Override
-    public int compareTo(SequentialBotCommand botCommand) {
+    public int compareTo(SlashBotCommand botCommand) {
 
         // Compare by sequence priority. If it's equals then compare by command letters
 

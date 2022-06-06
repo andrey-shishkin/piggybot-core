@@ -54,7 +54,8 @@ public class DefaultInlineCommandDelegatorFactory implements InlineCommandDelega
                                         @Override
                                         public BotInlineResponse processCommand(BotInlineRequest input) {
                                             try {
-                                                return (BotInlineResponse) m.invoke(controller, input);
+                                                BotInlineResponse response = (BotInlineResponse) m.invoke(controller, input);
+                                                return response;
                                             } catch (IllegalAccessException | InvocationTargetException e) {
                                                 throw new RuntimeException("Couldn't perform query " + input.getCommand()); //TODO Add custom exception
                                             }

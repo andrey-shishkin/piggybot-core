@@ -60,14 +60,14 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingCommandBot 
             query = update.getCallbackQuery().getData();
             response = inlineDelegator.delegate(BotInlineRequest.builder()
                     .command(query)
-                    .user(update.getCallbackQuery().getFrom())
+                    .update(update)
                     .build());
         } else if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             query = callbackQuery.getData();
             response = callbackDelegator.delegate(BotCallbackRequest.builder()
                     .command(query)
-                    .user(update.getCallbackQuery().getFrom())
+                    .update(update)
                     .build());
         }
         if (response != null) {

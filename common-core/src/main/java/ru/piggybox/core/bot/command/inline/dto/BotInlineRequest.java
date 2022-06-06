@@ -2,7 +2,7 @@ package ru.piggybox.core.bot.command.inline.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.piggybox.core.bot.common.dto.BotRequest;
 
 @Data
@@ -10,5 +10,6 @@ import ru.piggybox.core.bot.common.dto.BotRequest;
 public class BotInlineRequest implements BotRequest {
 
     private String command;
-    private User user;
+    private String previousCommand;
+    private Update update;
 }
