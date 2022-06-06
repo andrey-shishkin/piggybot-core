@@ -10,10 +10,10 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.piggybox.core.bot.command.slash.controller.SlashCommandController;
 import ru.piggybox.core.bot.command.slash.custom.command.CustomHelpCommand;
 import ru.piggybox.core.bot.common.SequentialBotCommand;
 import ru.piggybox.core.bot.common.command.mapping.annotation.SlashQueryMapping;
-import ru.piggybox.core.bot.common.controller.CommandController;
 import ru.piggybox.core.bot.common.dto.BotResponse;
 
 import javax.annotation.PostConstruct;
@@ -31,7 +31,7 @@ public class DefaultSlashCommandInitializer {
     private TelegramLongPollingCommandBot bot;
 
     @Autowired(required = false)
-    private List<CommandController<?, ?>> controllers;
+    private List<SlashCommandController> controllers;
 
     @PostConstruct
     protected void init() throws TelegramApiException {
@@ -67,7 +67,7 @@ public class DefaultSlashCommandInitializer {
         bot.execute(new SetMyCommands(mainMenu, null, null)); // May throw TelegramApiException. We don't catch it, otherwise we crashing on startup.
     }
 
-    protected Set<SequentialBotCommand> createBotCommands(CommandController<?, ?> controller) {
+    protected Set<SequentialBotCommand> createBotCommands(SlashCommandController controller) {
         return Arrays.stream(controller.getClass().getDeclaredMethods())
                 .filter(m -> m.isAnnotationPresent(SlashQueryMapping.class))
                 .map(m -> {
