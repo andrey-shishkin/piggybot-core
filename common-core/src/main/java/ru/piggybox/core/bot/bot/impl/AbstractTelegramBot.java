@@ -43,7 +43,7 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingCommandBot 
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
             api.registerBot(this);
         } catch (TelegramApiException e) {
-            throw new IllegalStateException("Couldn't initialize bot");
+            throw new IllegalStateException("Couldn't initialize bot. " + e.getMessage());
         }
     }
 
@@ -62,12 +62,6 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingCommandBot 
                     .command(query)
                     .user(update.getCallbackQuery().getFrom())
                     .build());
-            try {
-                execute(response.getMethod());
-            } catch (TelegramApiException e) {
-                System.out.println("Couldn't perform inline query. " + query);
-                System.out.println(e.getMessage());
-            }
         } else if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             query = callbackQuery.getData();
@@ -80,7 +74,7 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingCommandBot 
             try {
                 execute(response.getMethod());
             } catch (TelegramApiException e) {
-                System.out.println("Couldn't perform callback query. " + query);
+                System.out.println("Couldn't perform callback or inline query. " + query);
                 System.out.println(e.getMessage());
             }
         }

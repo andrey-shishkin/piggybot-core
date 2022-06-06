@@ -1,26 +1,37 @@
 package ru.piggybox.core.bot.common;
 
-import org.telegram.telegrambots.extensions.bots.commandbot.commands.BotCommand;
+import lombok.Getter;
+import org.telegram.telegrambots.extensions.bots.commandbot.commands.helpCommand.ManCommand;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
-public class SequentialBotCommand extends BotCommand implements Comparable<SequentialBotCommand> {
+public class SequentialBotCommand extends ManCommand implements Comparable<SequentialBotCommand> {
 
-    private int sequencePriority;
-    private Function<User, Void> function;
+    private final int sequencePriority;
+    private final Function<List<Object>, Void> function;
+    @Getter
+    private final boolean isVisible;
 
-    public SequentialBotCommand(String commandIdentifier, String description, int sequencePriority, Function<User, Void> function) {
-        super(commandIdentifier, description);
+    public SequentialBotCommand(String commandIdentifier, String description, String extendedDescription, int sequencePriority, boolean isVisible, Function<List<Object>, Void> function) {
+        super(commandIdentifier, description, extendedDescription);
         this.sequencePriority = sequencePriority;
+        this.isVisible = isVisible;
         this.function = function;
     }
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        function.apply(user);
+        List<Object> input = new ArrayList<>();
+        input.add(absSender);
+        input.add(user);
+        input.add(chat);
+        input.add(arguments);
+        function.apply(input);
     }
 
     @Override

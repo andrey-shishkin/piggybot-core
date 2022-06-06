@@ -12,5 +12,9 @@ public @interface SlashQueryMapping {
 
     String description() default "";
 
+    String extendedDescription() default "";
+
     int sequencePriority() default 0;
+
+    boolean visibility() default true;
 }
