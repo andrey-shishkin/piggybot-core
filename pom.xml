@@ -12,6 +12,8 @@
     <modules>
         <module>common-core</module>
         <module>common-microservice</module>
+        <module>common-repository</module>
+        <module>common-service</module>
     </modules>
 
     <properties>
@@ -92,7 +94,6 @@
                 <artifactId>jsoup</artifactId>
                 <version>1.14.3</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
