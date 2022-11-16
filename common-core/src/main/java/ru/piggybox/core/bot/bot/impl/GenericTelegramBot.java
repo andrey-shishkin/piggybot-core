@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -83,5 +85,14 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
     @Override
     public String getBotUsername() {
         return botUsername;
+    }
+
+    @Override
+    public void sendMessage(String message, String userId) throws TelegramApiException {
+        execute(SendMessage.builder()
+                .text(message)
+                .chatId(userId)
+                .parseMode(ParseMode.MARKDOWN)
+                .build());
     }
 }
