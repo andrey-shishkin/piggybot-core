@@ -83,7 +83,9 @@ public class DefaultSlashCommandInitializer {
                             (request) -> {
                                 try {
                                     BotResponse response = (BotResponse) m.invoke(controller, request); // TODO !!! Need to put not only user here.
-                                    bot.execute(response.getMethod());
+                                    if (response != null) {
+                                        bot.execute(response.getMethod());
+                                    }
                                 } catch (IllegalAccessException | InvocationTargetException | TelegramApiException e) {
                                     e.printStackTrace(); //TODO Fix it
                                 }
