@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import ru.piggybox.core.bot.bot.ITelegramBot;
+import ru.piggybox.core.bot.bot.TelegramBot;
 import ru.piggybox.core.bot.command.callback.delegator.CallbackCommandDelegator;
 import ru.piggybox.core.bot.command.callback.delegator.factory.CallbackCommandDelegatorFactory;
 import ru.piggybox.core.bot.command.callback.dto.BotCallbackRequest;
@@ -19,7 +19,7 @@ import ru.piggybox.core.bot.common.dto.BotResponse;
 
 import javax.annotation.PostConstruct;
 
-public abstract class AbstractTelegramBot extends TelegramLongPollingCommandBot implements ITelegramBot {
+public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot implements TelegramBot {
 
     @Value("${bot.username}")
     private String botUsername;
@@ -45,11 +45,6 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingCommandBot 
         } catch (TelegramApiException e) {
             throw new IllegalStateException("Couldn't initialize bot. " + e.getMessage());
         }
-    }
-
-    @Override
-    public String getBotUsername() {
-        return botUsername;
     }
 
     @Override
@@ -83,5 +78,10 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingCommandBot 
     @Override
     public String getBotToken() {
         return botToken;
+    }
+
+    @Override
+    public String getBotUsername() {
+        return botUsername;
     }
 }
