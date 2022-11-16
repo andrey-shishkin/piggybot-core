@@ -1,5 +1,6 @@
 package ru.piggybox.core.bot.command.slash.initializer.impl;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
@@ -35,11 +36,13 @@ public class DefaultSlashCommandInitializer {
         Set<SlashBotCommand> commands = new TreeSet<>();
 
         // Scanning controllers to find SlashQueryMapping
-        controllers
-                .stream()
-                .map(this::createBotCommands)
-                .flatMap(Set::stream)
-                .forEach(commands::add);
+        if (CollectionUtils.isNotEmpty(controllers)) {
+            controllers
+                    .stream()
+                    .map(this::createBotCommands)
+                    .flatMap(Set::stream)
+                    .forEach(commands::add);
+        }
 
         commands.add(getHelpCommand(commands));
 
