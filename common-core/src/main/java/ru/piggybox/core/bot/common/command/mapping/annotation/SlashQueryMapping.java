@@ -8,9 +8,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface SlashQueryMapping {
+    // value is required field
     String value();
 
-    String description() default "";
+    // description is required field
+    String description();
 
     String extendedDescription() default "";
 
