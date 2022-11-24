@@ -62,8 +62,12 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
         } else if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             query = callbackQuery.getData();
+            // TODO Looks like we need to send some structure as callback query
+            // ex. JSON. It will affect performance somehow.
+            CallbackData callbackData = parseCallbackQuery(query);
             response = callbackDelegator.delegate(BotCallbackRequest.builder()
-                    .command(query)
+                    .command(callbackData.command)
+                    .previousCommand(callbackData.previousCommand)
                     .update(update)
                     .build());
         }
@@ -75,6 +79,17 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    private CallbackData parseCallbackQuery(String query) {
+        String[] parts = query.split("/");
+        if (parts.length == 2) {
+            return new CallbackData(parts[0], parts[1]);
+        }
+        if (parts.length == 1) {
+            return new CallbackData(parts[0], null);
+        }
+        return new CallbackData(null, null);
     }
 
     @Override
@@ -94,5 +109,15 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
                 .chatId(userId)
                 .parseMode(ParseMode.MARKDOWN)
                 .build());
+    }
+
+    private static class CallbackData {
+        private String command;
+        private String previousCommand;
+
+        CallbackData(String command, String previousCommand) {
+            this.command = command;
+            this.previousCommand = previousCommand;
+        }
     }
 }
