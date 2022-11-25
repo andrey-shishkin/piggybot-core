@@ -2,6 +2,7 @@ package ru.piggybox.core.bot.common.command.delegator;
 
 import com.google.common.collect.ImmutableMap;
 import ru.piggybox.core.bot.common.command.BotExecutable;
+import ru.piggybox.core.bot.common.command.mapping.exception.CommandMappingException;
 import ru.piggybox.core.bot.common.controller.CommandController;
 import ru.piggybox.core.bot.common.dto.BotRequest;
 import ru.piggybox.core.bot.common.dto.BotResponse;
@@ -19,8 +20,12 @@ public abstract class GenericCommandDelegator<I extends BotRequest, O extends Bo
 
     @Override
     public O delegate(I request) {
-        Cmd command = Optional.of(registry.get(request.getCommand()))
-                .orElseThrow(IllegalArgumentException::new); // TODO Throw custom exception (Unknown command exception)
+        String requestCommand = request.getCommand();
+        if (requestCommand == null) {
+            throw new CommandMappingException("Command can't be null");
+        }
+        Cmd command = Optional.of(registry.get(requestCommand))
+                .orElseThrow(() -> new CommandMappingException("Can't delegate command " + requestCommand + ". Mapping is not found."));
         return command.processCommand(request);
     }
 }
