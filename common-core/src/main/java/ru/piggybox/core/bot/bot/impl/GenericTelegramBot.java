@@ -67,7 +67,7 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
             CallbackData callbackData = parseCallbackQuery(query);
             response = callbackDelegator.delegate(BotCallbackRequest.builder()
                     .command(callbackData.command)
-                    .previousCommand(callbackData.previousCommand)
+                    .parameters(callbackData.parameters)
                     .update(update)
                     .build());
         }
@@ -82,14 +82,17 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
     }
 
     private CallbackData parseCallbackQuery(String query) {
-        String[] parts = query.split("/");
+
+        final String delimiter = ";";
+
+        String[] parts = query.split(delimiter);
         if (parts.length == 2) {
             return new CallbackData(parts[0], parts[1]);
         }
         if (parts.length == 1) {
             return new CallbackData(parts[0], null);
         }
-        return new CallbackData(null, null);
+        return new CallbackData(query, null);
     }
 
     @Override
@@ -113,11 +116,11 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
 
     private static class CallbackData {
         private String command;
-        private String previousCommand;
+        private String parameters;
 
-        CallbackData(String command, String previousCommand) {
+        CallbackData(String command, String parameters) {
             this.command = command;
-            this.previousCommand = previousCommand;
+            this.parameters = parameters;
         }
     }
 }

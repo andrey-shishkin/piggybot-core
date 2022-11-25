@@ -10,6 +10,6 @@ import ru.piggybox.core.bot.common.dto.BotRequest;
 public class BotCallbackRequest implements BotRequest {
 
     private String command;
-    private String previousCommand;
+    private String parameters;
     private Update update;
 }

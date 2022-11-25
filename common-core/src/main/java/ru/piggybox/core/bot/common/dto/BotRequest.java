@@ -6,7 +6,7 @@ public interface BotRequest {
 
     String getCommand();
 
-    String getPreviousCommand();
+    String getParameters();
 
     Update getUpdate();
 }
