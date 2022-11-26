@@ -14,7 +14,6 @@ import ru.piggybox.core.bot.common.SlashBotCommand;
 import ru.piggybox.core.bot.common.command.mapping.annotation.SlashQueryMapping;
 import ru.piggybox.core.bot.common.dto.BotResponse;
 
-import javax.annotation.PostConstruct;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
@@ -25,21 +24,17 @@ import java.util.stream.Collectors;
 @Component
 public class DefaultSlashCommandInitializer {
 
-    @Autowired
-    private TelegramLongPollingCommandBot bot;
-
     @Autowired(required = false)
     private List<SlashCommandController> controllers;
 
-    @PostConstruct
-    protected void init() throws TelegramApiException {
+    public void init(TelegramLongPollingCommandBot bot) throws TelegramApiException {
         Set<SlashBotCommand> commands = new TreeSet<>();
 
         // Scanning controllers to find SlashQueryMapping
         if (CollectionUtils.isNotEmpty(controllers)) {
             controllers
                     .stream()
-                    .map(this::createBotCommands)
+                    .map(ctrl -> createBotCommands(ctrl, bot))
                     .flatMap(Set::stream)
                     .forEach(commands::add);
         }
@@ -53,14 +48,14 @@ public class DefaultSlashCommandInitializer {
                 .collect(Collectors.toList());
 
         // Registering commands
-        commands.forEach(c -> bot.register(c));
+        commands.forEach(bot::register);
 
         // Registering main menu
         // May throw TelegramApiException. We don't catch it, because we need to crash on startup.
         bot.execute(new SetMyCommands(mainMenu, null, null));
     }
 
-    protected Set<SlashBotCommand> createBotCommands(SlashCommandController controller) {
+    protected Set<SlashBotCommand> createBotCommands(SlashCommandController controller, TelegramLongPollingCommandBot bot) {
         return Arrays.stream(controller.getClass().getDeclaredMethods())
                 .filter(m -> m.isAnnotationPresent(SlashQueryMapping.class))
                 .map(m -> {

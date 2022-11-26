@@ -1,6 +1,5 @@
 package ru.piggybox.core.bot.bot.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -11,17 +10,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import ru.piggybox.core.bot.bot.TelegramBot;
+import ru.piggybox.core.bot.bot.TelegramBotInitializer;
 import ru.piggybox.core.bot.command.callback.delegator.CallbackCommandDelegator;
-import ru.piggybox.core.bot.command.callback.delegator.factory.CallbackCommandDelegatorFactory;
 import ru.piggybox.core.bot.command.callback.dto.BotCallbackRequest;
 import ru.piggybox.core.bot.command.inline.delegator.InlineCommandDelegator;
-import ru.piggybox.core.bot.command.inline.delegator.factory.InlineCommandDelegatorFactory;
 import ru.piggybox.core.bot.command.inline.dto.BotInlineRequest;
 import ru.piggybox.core.bot.common.dto.BotResponse;
 
-import javax.annotation.PostConstruct;
-
-public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot implements TelegramBot {
+public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot implements TelegramBot, TelegramBotInitializer {
 
     @Value("${bot.username}")
     private String botUsername;
@@ -30,20 +26,12 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
     @Value("${bot.console-log-enabled}")
     private Boolean consoleLogEnabled;
 
-    @Autowired
-    private CallbackCommandDelegatorFactory callbackFactory;
-    @Autowired
-    private InlineCommandDelegatorFactory inlineFactory;
-
     private CallbackCommandDelegator callbackDelegator;
 
     private InlineCommandDelegator inlineDelegator;
 
-    @PostConstruct
     public void init() {
         try {
-            callbackDelegator = callbackFactory.getDelegator();
-            inlineDelegator = inlineFactory.getDelegator();
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
             api.registerBot(this);
         } catch (TelegramApiException e) {
@@ -66,7 +54,7 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
             query = callbackQuery.getData();
             // Max callback query data length is 64 characters
             CallbackData callbackData = parseCallbackQuery(query);
-            if(consoleLogEnabled != null && consoleLogEnabled) {
+            if (consoleLogEnabled != null && consoleLogEnabled) {
                 System.out.println("User " + update.getCallbackQuery().getFrom().getId() + ". Query: " + query);
             }
             response = callbackDelegator.delegate(BotCallbackRequest.builder()
@@ -116,6 +104,21 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
                 .chatId(userId)
                 .parseMode(ParseMode.MARKDOWN)
                 .build());
+    }
+
+    @Override
+    public TelegramLongPollingCommandBot getBot() {
+        return this;
+    }
+
+    @Override
+    public void setCallbackCommandDelegator(CallbackCommandDelegator callbackCommandDelegator) {
+        this.callbackDelegator = callbackCommandDelegator;
+    }
+
+    @Override
+    public void setInlineCommandDelegator(InlineCommandDelegator inlineCommandDelegator) {
+        this.inlineDelegator = inlineCommandDelegator;
     }
 
     private static class CallbackData {
