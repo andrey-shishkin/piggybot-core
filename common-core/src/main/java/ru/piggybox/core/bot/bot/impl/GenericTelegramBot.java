@@ -64,8 +64,7 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
         } else if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             query = callbackQuery.getData();
-            // TODO Looks like we need to send some structure as callback query
-            // ex. JSON. It will affect performance somehow.
+            // Max callback query data length is 64 characters
             CallbackData callbackData = parseCallbackQuery(query);
             if(consoleLogEnabled != null && consoleLogEnabled) {
                 System.out.println("User " + update.getCallbackQuery().getFrom().getId() + ". Query: " + query);
