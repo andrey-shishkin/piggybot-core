@@ -55,16 +55,9 @@ public class DefaultSlashCommandInitializer {
         // Registering commands
         commands.forEach(c -> bot.register(c));
 
-        /*// Creating default /help command
-        HelpCommand helpCommand = new HelpCommand();
-        // Registering default /help command
-        bot.register(helpCommand);
-
-        // Add help command to the main menu
-        mainMenu.add(new BotCommand(helpCommand.getCommandIdentifier(), helpCommand.getDescription()));*/
-
         // Registering main menu
-        bot.execute(new SetMyCommands(mainMenu, null, null)); // May throw TelegramApiException. We don't catch it, otherwise we crashing on startup.
+        // May throw TelegramApiException. We don't catch it, because we need to crash on startup.
+        bot.execute(new SetMyCommands(mainMenu, null, null));
     }
 
     protected Set<SlashBotCommand> createBotCommands(SlashCommandController controller) {

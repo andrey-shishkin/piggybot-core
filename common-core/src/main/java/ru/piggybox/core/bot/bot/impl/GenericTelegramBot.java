@@ -27,6 +27,8 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
     private String botUsername;
     @Value("${bot.token}")
     private String botToken;
+    @Value("${bot.console-log-enabled}")
+    private Boolean consoleLogEnabled;
 
     @Autowired
     private CallbackCommandDelegatorFactory callbackFactory;
@@ -65,6 +67,9 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
             // TODO Looks like we need to send some structure as callback query
             // ex. JSON. It will affect performance somehow.
             CallbackData callbackData = parseCallbackQuery(query);
+            if(consoleLogEnabled != null && consoleLogEnabled) {
+                System.out.println("User " + update.getCallbackQuery().getFrom().getId() + ". Query: " + query);
+            }
             response = callbackDelegator.delegate(BotCallbackRequest.builder()
                     .command(callbackData.command)
                     .parameters(callbackData.parameters)

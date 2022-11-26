@@ -19,7 +19,7 @@ public class CustomHelpCommand extends HelpCommand {
     private Set<SlashBotCommand> botCommands;
 
     public CustomHelpCommand(Set<SlashBotCommand> botCommands) {
-        super();
+        super("help", "Need help ?", null);
         this.botCommands = botCommands;
     }
 
