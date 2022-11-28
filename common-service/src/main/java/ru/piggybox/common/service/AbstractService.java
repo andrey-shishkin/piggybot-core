@@ -22,8 +22,7 @@ public abstract class AbstractService<K, V extends Persistable<K> & IsNewSetter,
     public T create(K id, T detail) {
         V target = mapper.detailToEntity(id, detail);
         target.setNew(true);
-        repository.save(target);
-        return detail;
+        return mapper.entityToDetail(repository.save(target));
     }
 
     @Override
@@ -36,8 +35,7 @@ public abstract class AbstractService<K, V extends Persistable<K> & IsNewSetter,
     public T update(K id, T detail) {
         V target = mapper.detailToEntity(id, detail);
         target.setNew(false);
-        repository.save(target);
-        return detail;
+        return mapper.entityToDetail(repository.save(target));
     }
 
     @Override
