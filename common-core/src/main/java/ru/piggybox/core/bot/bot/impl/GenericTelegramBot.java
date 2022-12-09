@@ -1,5 +1,6 @@
 package ru.piggybox.core.bot.bot.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -15,6 +16,7 @@ import ru.piggybox.core.bot.command.callback.delegator.CallbackCommandDelegator;
 import ru.piggybox.core.bot.command.callback.dto.BotCallbackRequest;
 import ru.piggybox.core.bot.command.inline.delegator.InlineCommandDelegator;
 import ru.piggybox.core.bot.command.inline.dto.BotInlineRequest;
+import ru.piggybox.core.bot.command.text.TextProcessor;
 import ru.piggybox.core.bot.common.dto.BotResponse;
 
 public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot implements TelegramBot, TelegramBotInitializer {
@@ -26,9 +28,12 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
     @Value("${bot.console-log-enabled}")
     private Boolean consoleLogEnabled;
 
-    private CallbackCommandDelegator callbackDelegator;
+    private CallbackCommandDelegator callbackDelegator; // TODO Refactor this as it is look like TextProcessor
 
     private InlineCommandDelegator inlineDelegator;
+
+    @Autowired(required = false)
+    private TextProcessor textProcessor;
 
     public void init() {
         try {
@@ -62,6 +67,10 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
                     .parameters(callbackData.parameters)
                     .update(update)
                     .build());
+        } else {
+            if (textProcessor != null) {
+                response = textProcessor.processTextMessage(update);
+            }
         }
         if (response != null) {
             try {
