@@ -19,8 +19,14 @@ import ru.piggybox.core.bot.command.inline.dto.BotInlineRequest;
 import ru.piggybox.core.bot.command.text.TextProcessor;
 import ru.piggybox.core.bot.common.dto.BotResponse;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Supplier;
+
 public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot implements TelegramBot, TelegramBotInitializer {
 
+    private final ExecutorService executor = Executors.newCachedThreadPool();
     @Value("${bot.username}")
     private String botUsername;
     @Value("${bot.token}")
@@ -46,40 +52,15 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
 
     @Override
     public void processNonCommandUpdate(Update update) {
-        BotResponse response = null;
-        String query = null;
-        if (update.hasInlineQuery()) {
-            query = update.getCallbackQuery().getData();
-            response = inlineDelegator.delegate(BotInlineRequest.builder()
-                    .command(query)
-                    .update(update)
-                    .build());
-        } else if (update.hasCallbackQuery()) {
-            CallbackQuery callbackQuery = update.getCallbackQuery();
-            query = callbackQuery.getData();
-            // Max callback query data length is 64 characters
-            CallbackData callbackData = parseCallbackQuery(query);
-            if (consoleLogEnabled != null && consoleLogEnabled) {
-                System.out.println("User " + update.getCallbackQuery().getFrom().getId() + ". Query: " + query);
-            }
-            response = callbackDelegator.delegate(BotCallbackRequest.builder()
-                    .command(callbackData.command)
-                    .parameters(callbackData.parameters)
-                    .update(update)
-                    .build());
-        } else {
-            if (textProcessor != null) {
-                response = textProcessor.processTextMessage(update);
-            }
-        }
-        if (response != null) {
-            try {
-                execute(response.getMethod());
-            } catch (TelegramApiException e) {
-                System.out.println("Couldn't perform callback or inline query. " + query);
-                System.out.println(e.getMessage());
-            }
-        }
+        CompletableFuture.supplyAsync(new NonCommandSupplier(update), executor)
+                .thenAccept(resp -> {
+                    try {
+                        execute(resp.getMethod());
+                    } catch (TelegramApiException e) {
+                        System.out.println("Couldn't perform callback or inline query.");
+                        System.out.println(e.getMessage());
+                    }
+                });
     }
 
     private CallbackData parseCallbackQuery(String query) {
@@ -137,6 +118,46 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
         CallbackData(String command, String parameters) {
             this.command = command;
             this.parameters = parameters;
+        }
+    }
+
+    private class NonCommandSupplier implements Supplier<BotResponse> {
+
+        private final Update update;
+
+        public NonCommandSupplier(Update update) {
+            this.update = update;
+        }
+
+        @Override
+        public BotResponse get() {
+            BotResponse response = null;
+            String query;
+            if (update.hasInlineQuery()) {
+                query = update.getCallbackQuery().getData();
+                response = inlineDelegator.delegate(BotInlineRequest.builder()
+                        .command(query)
+                        .update(update)
+                        .build());
+            } else if (update.hasCallbackQuery()) {
+                CallbackQuery callbackQuery = update.getCallbackQuery();
+                query = callbackQuery.getData();
+                // Max callback query data length is 64 characters
+                CallbackData callbackData = parseCallbackQuery(query);
+                if (consoleLogEnabled != null && consoleLogEnabled) {
+                    System.out.println("User " + update.getCallbackQuery().getFrom().getId() + ". Query: " + query);
+                }
+                response = callbackDelegator.delegate(BotCallbackRequest.builder()
+                        .command(callbackData.command)
+                        .parameters(callbackData.parameters)
+                        .update(update)
+                        .build());
+            } else {
+                if (textProcessor != null) {
+                    response = textProcessor.processTextMessage(update);
+                }
+            }
+            return response;
         }
     }
 }
