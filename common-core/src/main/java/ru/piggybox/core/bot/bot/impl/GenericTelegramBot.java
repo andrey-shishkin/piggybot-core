@@ -18,6 +18,7 @@ import ru.piggybox.core.bot.command.inline.delegator.InlineCommandDelegator;
 import ru.piggybox.core.bot.command.inline.dto.BotInlineRequest;
 import ru.piggybox.core.bot.command.text.TextProcessor;
 import ru.piggybox.core.bot.common.dto.BotResponse;
+import ru.piggybox.core.bot.message.MessageParseMode;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -88,11 +89,27 @@ public abstract class GenericTelegramBot extends TelegramLongPollingCommandBot i
     }
 
     @Override
-    public void sendMessage(String message, String userId) throws TelegramApiException {
+    public void sendMessage(String message, String userId, MessageParseMode messageParseMode) throws TelegramApiException {
+
+        String parseMode;
+        switch (messageParseMode) {
+            case MARKDOWN:
+                parseMode = ParseMode.MARKDOWN;
+                break;
+            case MARKDOWN_V2:
+                parseMode = ParseMode.MARKDOWNV2;
+                break;
+            case HTML:
+                parseMode = ParseMode.HTML;
+                break;
+            default:
+                parseMode = null;
+        }
+
         execute(SendMessage.builder()
                 .text(message)
                 .chatId(userId)
-                .parseMode(ParseMode.MARKDOWN)
+                .parseMode(parseMode)
                 .build());
     }
 
